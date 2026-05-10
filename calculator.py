@@ -2,15 +2,26 @@ import tkinter as tk
 from tkinter import ttk
 import math
 from datetime import datetime
+import numpy as np
+
+# Попытка импорта matplotlib с обработкой ошибок
+try:
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    from matplotlib.figure import Figure
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+    print("Для работы графика установите: pip install matplotlib numpy")
 
 # Цветовая схема (тёмная тема с неоновым акцентом)
 COLORS = {
-    'bg': '#1e1e2e',           # тёмный фон
+    'bg': "#4e4e58",           # тёмный фон
     'display': '#181825',       # фон дисплея
     'display_text': '#cdd6f4',  # цвет текста на дисплее
-    'btn_normal': '#313244',    # обычная кнопка
+    'btn_normal': "#6D71B6",    # обычная кнопка
     'btn_normal_text': '#cdd6f4',
-    'btn_operator': '#89b4fa',  # операторы (синий)
+    'btn_operator': '#89b4fa',  
     'btn_operator_text': '#1e1e2e',
     'btn_equal': '#a6e3a1',     # равно (зелёный)
     'btn_equal_text': '#1e1e2e',
@@ -44,11 +55,8 @@ class ModernButton(tk.Button):
             **kwargs
         )
         
-        # Привязываем события наведения
         self.bind('<Enter>', self.on_enter)
         self.bind('<Leave>', self.on_leave)
-        
-        # Делаем тень
         self.configure(highlightthickness=0)
     
     def get_bg_color(self):
@@ -73,12 +81,12 @@ class ModernButton(tk.Button):
     
     def get_hover_color(self):
         hover_map = {
-            'normal': '#45475a',
+            'normal': "#505dd2",
             'operator': '#b4befe',
-            'equal': '#a6e3a1',
+            'equal': "#c873c9",
             'clear': '#f9e2af',
             'special': '#f5c2e7',
-            'memory': '#b4befe'
+            'memory': "#999ec2"
         }
         return hover_map.get(self.color_type, COLORS['hover'])
     
@@ -101,8 +109,6 @@ class ModernDisplay(tk.Frame):
             anchor='e', padx=15, pady=15
         )
         self.label.pack(fill=tk.BOTH, expand=True)
-        
-        # Добавляем рамку
         self.configure(highlightbackground=COLORS['bg'], highlightthickness=2)
 
 
@@ -114,10 +120,8 @@ class SimpleCalculator:
         self.add_to_history = add_to_history
         self.expression = ""
         
-        # Настройка фона
         parent.configure(bg=COLORS['bg'])
         
-        # Дисплей
         self.display_var = tk.StringVar()
         self.display_var.set("0")
         
@@ -127,11 +131,9 @@ class SimpleCalculator:
         self.display = ModernDisplay(display_frame, self.display_var)
         self.display.pack(fill=tk.BOTH, expand=True)
         
-        # Панель кнопок
         buttons_frame = tk.Frame(parent, bg=COLORS['bg'])
         buttons_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
         
-        # Кнопки с цветовой дифференциацией
         buttons = [
             ('7', 1, 0, 'normal'), ('8', 1, 1, 'normal'), ('9', 1, 2, 'normal'), ('/', 1, 3, 'operator'), ('⌫', 1, 4, 'clear'),
             ('4', 2, 0, 'normal'), ('5', 2, 1, 'normal'), ('6', 2, 2, 'normal'), ('*', 2, 3, 'operator'), ('√', 2, 4, 'special'),
@@ -145,13 +147,11 @@ class SimpleCalculator:
                               command=lambda t=text: self.click(t))
             btn.grid(row=row, column=col, sticky="nsew", padx=4, pady=4)
         
-        # Настройка сетки
         for i in range(6):
             buttons_frame.grid_rowconfigure(i, weight=1)
         for i in range(5):
             buttons_frame.grid_columnconfigure(i, weight=1)
         
-        # Горячие клавиши
         parent.bind('<Key>', self.hotkey)
     
     def hotkey(self, event):
@@ -283,7 +283,6 @@ class ScientificCalculator:
         buttons_frame = tk.Frame(parent, bg=COLORS['bg'])
         buttons_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
         
-        # Кнопки научного калькулятора
         row1 = [('sin', 0, 0, 'special'), ('cos', 0, 1, 'special'), ('tan', 0, 2, 'special'),
                 ('log', 0, 3, 'special'), ('ln', 0, 4, 'special'), ('C', 0, 5, 'clear')]
         row2 = [('7', 1, 0, 'normal'), ('8', 1, 1, 'normal'), ('9', 1, 2, 'normal'),
@@ -429,7 +428,6 @@ class ProgrammerCalculator:
         
         parent.configure(bg=COLORS['bg'])
         
-        # Переключатель систем счисления (стильный)
         base_frame = tk.Frame(parent, bg=COLORS['bg'])
         base_frame.pack(fill=tk.X, padx=15, pady=(15, 5))
         
@@ -445,7 +443,6 @@ class ProgrammerCalculator:
                                     command=lambda: self.set_base("BIN"))
         self.bin_btn.pack(side=tk.LEFT, padx=2, expand=True, fill=tk.X)
         
-        # Дисплей
         self.display_var = tk.StringVar()
         self.display_var.set("0")
         
@@ -455,7 +452,6 @@ class ProgrammerCalculator:
         self.display = ModernDisplay(display_frame, self.display_var)
         self.display.pack(fill=tk.BOTH, expand=True)
         
-        # Кнопки
         buttons_frame = tk.Frame(parent, bg=COLORS['bg'])
         buttons_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
         
@@ -492,7 +488,6 @@ class ProgrammerCalculator:
         self.update_display()
     
     def update_button_styles(self):
-        # Обновляем стиль кнопок переключения
         for btn, base in [(self.dec_btn, "DEC"), (self.hex_btn, "HEX"), (self.bin_btn, "BIN")]:
             if base == self.current_base:
                 btn.config(bg=COLORS['btn_special'], fg=COLORS['btn_special_text'])
@@ -576,6 +571,188 @@ class ProgrammerCalculator:
         self.current_value = self.get_input_value()
 
 
+class GraphCalculator:
+    """Графический калькулятор для построения графиков функций"""
+    def __init__(self, parent, add_to_history):
+        self.parent = parent
+        self.add_to_history = add_to_history
+        
+        parent.configure(bg=COLORS['bg'])
+        
+        if not MATPLOTLIB_AVAILABLE:
+            label = tk.Label(parent, text="⚠️ Для работы графика установите:\nmatplotlib и numpy\n\npip install matplotlib numpy",
+                           font=('Segoe UI', 12), bg=COLORS['bg'], fg=COLORS['display_text'],
+                           justify=tk.CENTER)
+            label.pack(expand=True)
+            return
+        
+        # Верхняя панель с вводом функции
+        input_frame = tk.Frame(parent, bg=COLORS['bg'])
+        input_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
+        
+        tk.Label(input_frame, text="f(x) =", font=('Segoe UI', 12, 'bold'),
+                bg=COLORS['bg'], fg=COLORS['display_text']).pack(side=tk.LEFT, padx=(0, 10))
+        
+        self.func_var = tk.StringVar()
+        self.func_var.set("sin(x)")
+        
+        self.func_entry = tk.Entry(input_frame, textvariable=self.func_var,
+                                   font=('Consolas', 12), bg=COLORS['display'],
+                                   fg=COLORS['display_text'], relief=tk.FLAT,
+                                   insertbackground=COLORS['display_text'])
+        self.func_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+        
+        plot_btn = ModernButton(input_frame, text="Построить", color_type='equal',
+                                command=self.plot_function)
+        plot_btn.pack(side=tk.RIGHT)
+        
+        # Параметры графика
+        params_frame = tk.Frame(parent, bg=COLORS['bg'])
+        params_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
+        
+        # X min/max
+        tk.Label(params_frame, text="X min:", font=('Segoe UI', 10),
+                bg=COLORS['bg'], fg=COLORS['display_text']).pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.xmin_var = tk.StringVar(value="-10")
+        xmin_entry = tk.Entry(params_frame, textvariable=self.xmin_var, width=6,
+                              font=('Consolas', 10), bg=COLORS['display'],
+                              fg=COLORS['display_text'], relief=tk.FLAT)
+        xmin_entry.pack(side=tk.LEFT, padx=(0, 15))
+        
+        tk.Label(params_frame, text="X max:", font=('Segoe UI', 10),
+                bg=COLORS['bg'], fg=COLORS['display_text']).pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.xmax_var = tk.StringVar(value="10")
+        xmax_entry = tk.Entry(params_frame, textvariable=self.xmax_var, width=6,
+                              font=('Consolas', 10), bg=COLORS['display'],
+                              fg=COLORS['display_text'], relief=tk.FLAT)
+        xmax_entry.pack(side=tk.LEFT, padx=(0, 15))
+        
+        tk.Label(params_frame, text="Точек:", font=('Segoe UI', 10),
+                bg=COLORS['bg'], fg=COLORS['display_text']).pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.points_var = tk.StringVar(value="500")
+        points_entry = tk.Entry(params_frame, textvariable=self.points_var, width=6,
+                                font=('Consolas', 10), bg=COLORS['display'],
+                                fg=COLORS['display_text'], relief=tk.FLAT)
+        points_entry.pack(side=tk.LEFT)
+        
+        # Кнопки быстрых функций
+        quick_frame = tk.Frame(parent, bg=COLORS['bg'])
+        quick_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
+        
+        quick_funcs = [
+            ('sin(x)', 'sin(x)'), ('cos(x)', 'cos(x)'), ('tan(x)', 'tan(x)'),
+            ('x²', 'x**2'), ('√x', 'sqrt(x)'), ('1/x', '1/x'),
+            ('e^x', 'exp(x)'), ('ln(x)', 'log(x)'), ('|x|', 'abs(x)')
+        ]
+        
+        for text, func in quick_funcs:
+            btn = ModernButton(quick_frame, text=text, color_type='special',
+                              command=lambda f=func: self.set_function(f))
+            btn.pack(side=tk.LEFT, padx=2, expand=True, fill=tk.X)
+        
+        # Область для графика
+        self.figure = Figure(figsize=(6, 4), dpi=100, facecolor=COLORS['display'])
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_facecolor(COLORS['display'])
+        self.ax.tick_params(colors=COLORS['display_text'])
+        self.ax.spines['bottom'].set_color(COLORS['display_text'])
+        self.ax.spines['top'].set_color(COLORS['display_text'])
+        self.ax.spines['left'].set_color(COLORS['display_text'])
+        self.ax.spines['right'].set_color(COLORS['display_text'])
+        self.ax.xaxis.label.set_color(COLORS['display_text'])
+        self.ax.yaxis.label.set_color(COLORS['display_text'])
+        self.ax.title.set_color(COLORS['display_text'])
+        
+        self.canvas = FigureCanvasTkAgg(self.figure, parent)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        # Привязка Enter
+        self.func_entry.bind('<Return>', lambda e: self.plot_function())
+        
+        # Построение начального графика
+        self.plot_function()
+    
+    def set_function(self, func):
+        self.func_var.set(func)
+        self.plot_function()
+    
+    def plot_function(self):
+        try:
+            # Получаем параметры
+            x_min = float(self.xmin_var.get())
+            x_max = float(self.xmax_var.get())
+            points = int(self.points_var.get())
+            
+            if x_min >= x_max:
+                raise ValueError("X min должен быть меньше X max")
+            
+            # Создаём массив X
+            x = np.linspace(x_min, x_max, points)
+            
+            # Безопасное вычисление функции
+            y = []
+            func_str = self.func_var.get()
+            
+            # Создаём безопасное пространство имён
+            safe_dict = {
+                'x': 0, 'sin': np.sin, 'cos': np.cos, 'tan': np.tan,
+                'sqrt': np.sqrt, 'exp': np.exp, 'log': np.log, 'log10': np.log10,
+                'abs': np.abs, 'pi': np.pi, 'e': np.e, 'sinh': np.sinh,
+                'cosh': np.cosh, 'tanh': np.tanh, 'arcsin': np.arcsin,
+                'arccos': np.arccos, 'arctan': np.arctan
+            }
+            
+            for xi in x:
+                try:
+                    safe_dict['x'] = xi
+                    yi = eval(func_str, {"__builtins__": {}}, safe_dict)
+                    # Ограничиваем слишком большие значения
+                    if abs(yi) > 1e6:
+                        yi = np.nan
+                    y.append(yi)
+                except:
+                    y.append(np.nan)
+            
+            y = np.array(y)
+            
+            # Очищаем график
+            self.ax.clear()
+            
+            # Строим график
+            self.ax.plot(x, y, color=COLORS['btn_special'], linewidth=2)
+            
+            # Настройка внешнего вида
+            self.ax.axhline(y=0, color=COLORS['display_text'], linewidth=0.5, alpha=0.5)
+            self.ax.axvline(x=0, color=COLORS['display_text'], linewidth=0.5, alpha=0.5)
+            self.ax.grid(True, alpha=0.3, color=COLORS['display_text'])
+            
+            self.ax.set_xlabel('x', fontsize=10)
+            self.ax.set_ylabel('f(x)', fontsize=10)
+            self.ax.set_title(f'f(x) = {func_str}', fontsize=12, fontweight='bold')
+            
+            self.ax.set_facecolor(COLORS['display'])
+            self.ax.tick_params(colors=COLORS['display_text'])
+            
+            # Обновляем цвет границ
+            for spine in self.ax.spines.values():
+                spine.set_color(COLORS['display_text'])
+            
+            self.canvas.draw()
+            
+            self.add_to_history(f"📈 Построен график: f(x) = {func_str}, x ∈ [{x_min}, {x_max}]")
+            
+        except Exception as e:
+            # Показываем ошибку на графике
+            self.ax.clear()
+            self.ax.text(0.5, 0.5, f'Ошибка: {str(e)}', 
+                        transform=self.ax.transAxes, ha='center', va='center',
+                        color='red', fontsize=12)
+            self.canvas.draw()
+
+
 class HistoryTab:
     """Вкладка истории с красивым оформлением"""
     def __init__(self, parent):
@@ -617,22 +794,17 @@ class MultiCalculator:
     def __init__(self, root):
         self.root = root
         self.root.title("✨ MultiCalc — Современный калькулятор")
-        self.root.geometry("650x700")
+        self.root.geometry("750x800")
         self.root.configure(bg=COLORS['bg'])
         
-        # Иконка окна (можно добавить, если есть)
         try:
             self.root.iconbitmap('calc.ico')
         except:
             pass
         
-        # Общая память
         self.shared_memory = [0]
-        
-        # История
         self.history = []
         
-        # Стиль для вкладок
         style = ttk.Style()
         style.theme_use('clam')
         style.configure('TNotebook', background=COLORS['bg'], borderwidth=0)
@@ -641,28 +813,27 @@ class MultiCalculator:
                        font=('Segoe UI', 10, 'bold'))
         style.map('TNotebook.Tab', background=[('selected', COLORS['btn_special'])])
         
-        # Вкладки
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=(10, 5))
         
-        # Создаём вкладки
         self.simple_frame = tk.Frame(self.notebook, bg=COLORS['bg'])
         self.scientific_frame = tk.Frame(self.notebook, bg=COLORS['bg'])
         self.programmer_frame = tk.Frame(self.notebook, bg=COLORS['bg'])
+        self.graph_frame = tk.Frame(self.notebook, bg=COLORS['bg'])
         self.history_frame = tk.Frame(self.notebook, bg=COLORS['bg'])
         
         self.notebook.add(self.simple_frame, text="🧮 Обычный")
         self.notebook.add(self.scientific_frame, text="🔬 Научный")
         self.notebook.add(self.programmer_frame, text="💻 Программист")
+        self.notebook.add(self.graph_frame, text="📈 Графики")
         self.notebook.add(self.history_frame, text="📜 История")
         
-        # Инициализация калькуляторов
         self.simple_calc = SimpleCalculator(self.simple_frame, self.shared_memory, self.add_to_history)
         self.scientific_calc = ScientificCalculator(self.scientific_frame, self.shared_memory, self.add_to_history)
         self.programmer_calc = ProgrammerCalculator(self.programmer_frame, self.shared_memory, self.add_to_history)
+        self.graph_calc = GraphCalculator(self.graph_frame, self.add_to_history)
         self.history_tab = HistoryTab(self.history_frame)
         
-        # Статус-бар
         self.status_var = tk.StringVar()
         self.status_var.set(f"💾 Общая память: {self.shared_memory[0]}")
         status_bar = tk.Label(
@@ -672,7 +843,6 @@ class MultiCalculator:
         )
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         
-        # Обновление статуса
         self.update_status()
     
     def add_to_history(self, entry):
